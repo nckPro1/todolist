@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+<h2>Xin chào, bạn đã đăng nhập thành công!</h2>
+
+<p>Đây là trang Home, chỉ truy cập được khi login.</p>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Logout</button>
+</form>
+</body>
+</html>
