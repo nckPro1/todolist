@@ -2,41 +2,47 @@ package com.example.todo.controller;
 
 import com.example.todo.entity.User;
 import com.example.todo.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequestMapping("/auth")
 public class AuthController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
-    }
-
+    // Form login
     @GetMapping("/login")
     public String loginPage() {
-        return "login";
+        return "login"; // login.html
     }
 
+    // Form register
     @GetMapping("/register")
     public String registerPage(Model model) {
         model.addAttribute("user", new User());
-        return "register";
+        return "register"; // register.html
     }
 
+    // Submit register
     @PostMapping("/register")
-    public String register(@ModelAttribute User user, Model model) {
-        if (userService.findByUsername(user.getUsername()).isPresent()) {
-            model.addAttribute("error", "Username đã tồn tại!");
+    public String registerSubmit(@ModelAttribute("user") User user,
+                                 @RequestParam("confirmPassword") String confirmPassword,
+                                 Model model) {
+        if (!user.getPassword().equals(confirmPassword)) {
+            model.addAttribute("error", "Mật khẩu xác nhận không khớp");
             return "register";
         }
-        if (userService.findByEmail(user.getEmail()).isPresent()) {
-            model.addAttribute("error", "Email đã tồn tại!");
+
+        try {
+            userService.registerUser(user.getUsername(), user.getEmail(), user.getPassword());
+            return "redirect:/auth/login?registerSuccess";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
             return "register";
         }
-        userService.register(user);
-        return "redirect:/login?registerSuccess";
     }
 }
